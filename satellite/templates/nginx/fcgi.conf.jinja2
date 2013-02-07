@@ -1,0 +1,23 @@
+server {
+    listen {{ port }};
+    server_name {{ server_name }};
+
+    root {{ public_dir }};
+    location ~ /{{ static_dirs|join('|') }}/ {
+        root {{ public_dir }};
+    }
+
+    location / {
+        fastcgi_pass {{ fcgi_uri }};
+        fastcgi_param PATH_INFO $fastcgi_script_name;
+        fastcgi_param REQUEST_METHOD $request_method;
+        fastcgi_param QUERY_STRING $query_string;
+        fastcgi_param CONTENT_TYPE $content_type;
+        fastcgi_param CONTENT_LENGTH $content_length;
+        fastcgi_pass_header Authorization;
+        fastcgi_intercept_errors off;
+        fastcgi_param REMOTE_ADDR $remote_addr;
+    }
+    # what to serve if upstream is not available or crashes
+    error_page 500 502 503 504 {{ error_page }};
+}
