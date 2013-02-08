@@ -1,1 +1,1 @@
-from satellite.commands import *
+from satellite.utils import *

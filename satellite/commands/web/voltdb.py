@@ -1,6 +1,6 @@
-from fabric.api import run, cd, env
+from fabric.api import run, cd
 
-from satellite.utils import *
+from satellite import *
 
 
 def install():
@@ -11,10 +11,10 @@ def install():
         run('rm %s' % file_name)
 
 def configure():
-    run('voltdb compile --classpath="./"l -o %(db)s.jar %(db)s.sql' % {'db':env.VOLTDB_NAME})
+    run('voltdb compile --classpath="./"l -o %(db)s.jar %(db)s.sql' % {'db':settings.voltdb.name})
 
 def run():
     run("""voltdb create \
           catalog %s.jar   \
           deployment deployment.xml   \
-          host localhost""" % env.VOLTDB_NAME)
+          host localhost""" % settings.voltdb.name)

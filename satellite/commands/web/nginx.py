@@ -1,20 +1,20 @@
-from fabric.api import env
-
-from satellite.utils import *
+from fabric.contrib.files import upload_template
+from satellite import *
 
 
 def install():
     sudo('apt-get install nginx')
 
 def configure():
-    remote_locate = '/etc/nginx/conf.d/%s.conf' % env.NGINX_SERVER_NAME
-    sudo_upload_template('nginx/fcgi.conf.jinja2', remote_locate, dict(
-        port=env.NGINX_PORT,
-        server_name=env.NGINX_SERVER_NAME,
-        public_dir=env.PUBLIC_DIR,
-        static_dirs=env.NGINX_STATIC_DIRS.split(),
-        fcgi_uri=env.NGINX_FCGI_URI,
-        error_page=env.NGINX_ERROR_PAGE,
+    conf = settings.nginx
+    remote_locate = '/etc/nginx/conf.d/%s.conf' % conf.conf_name
+    use_sudo(upload_template, 'nginx/fcgi.conf.jinja2', remote_locate, dict(
+        port=conf.port,
+        server_name=conf.server_name,
+        public_dir=conf.public_dir,
+        static_dirs=conf.static_dirs.split(),
+        fcgi_uri=conf.fcgi_uri,
+        error_page=conf.error_page,
     ), template_dir=get_template_dir(), use_jinja=True)
 
 def service(action='start'):

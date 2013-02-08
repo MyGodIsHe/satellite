@@ -1,4 +1,4 @@
-from satellite.utils import *
+from satellite import *
 
 
 def install():

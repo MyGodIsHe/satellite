@@ -1,0 +1,10 @@
+[program:django.fcgi]
+directory = {{ directory }}
+user = {{ user }}
+command = {{ virtualenv }}/bin/python manage.py runfcgi daemonize=false maxchildren=10 maxspare=2 minspare=2 method=prefork host={{ host }} port={{ port }}
+stdout_logfile = {{ log }}/django_fcgi_out.log
+stderr_logfile = {{ log }}/django_fcgi_err.log
+autostart = true
+autorestart = true
+redirect_stderr = true
+environment = HOME='{{ directory }}'

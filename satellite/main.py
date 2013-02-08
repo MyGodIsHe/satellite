@@ -4,7 +4,7 @@ import os
 
 # For checking callables against the API, & easy mocking
 from fabric import api, state
-from fabric.main import _escape_split, parse_options, load_settings, find_fabfile, update_output_levels, load_fabfile, show_commands, display_command, parse_arguments, parse_remainder, _task_names
+from fabric.main import _escape_split, parse_options, find_fabfile, update_output_levels, load_fabfile, show_commands, display_command, parse_arguments, parse_remainder, _task_names
 
 from fabric.network import disconnect_all, ssh
 from fabric.state import env_options
@@ -13,6 +13,7 @@ from fabric.task_utils import crawl
 from fabric.utils import abort, indent, warn
 
 import satellite.commands
+from satellite.utils import settings, load_settings
 
 
 def get_dir_list(path):
@@ -127,7 +128,8 @@ def main():
             sys.exit(0)
 
         # Load settings from user settings file, into shared env dict.
-        state.env.update(load_settings('.satelliterc'))
+        settings.update(load_settings())
+        state.env.update(settings.fabric)
 
         # Find local fabfile path or abort
         fabfile = find_fabfile(fabfile_locations)
