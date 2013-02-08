@@ -29,6 +29,7 @@ def get_dir_list(path):
 def get_task_list(parts):
     fabfile = '%s.py' % os.path.join(satellite.commands.__path__[0], *parts[:-1])
     docstring, callables, default = load_fabfile(fabfile)
+    callables = dict((k, v) for k, v in callables.iteritems() if v.__module__ == parts[-2])
     return _task_names(callables)
 
 def auto_complete():
@@ -86,9 +87,10 @@ def main():
             abort("You can call only one command!")
 
         if arguments:
-            parts = arguments[0].split('.')
+            tmp_parts = arguments[0].split(':')
+            parts = tmp_parts[0].split('.')
             fabfile_locations = ['%s.py' % os.path.join(satellite.commands.__path__[0], *parts[:-1])]
-            arguments[0] = parts[-1]
+            arguments[0] = parts[-1] + ''.join(":%s" % i for i in tmp_parts[1:])
 
         # Allow setting of arbitrary env keys.
         # This comes *before* the "specific" env_options so that those may
