@@ -3,8 +3,6 @@
 import os
 from setuptools import setup, find_packages
 
-from fabric.version import get_version
-
 
 package_name = 'satellite'
 data_files = []
@@ -19,7 +17,7 @@ for dirpath, dirnames, filenames in os.walk(package_name):
 
 setup(
     name='Satellite',
-    version=get_version('short'),
+    version='0.0.1',
     description='Deployment tool based on fabric.',
     author='Ilya Chistyakov',
     author_email='ilchistyakov@gmail.com',
