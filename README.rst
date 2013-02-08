@@ -72,10 +72,15 @@ Example:
 Usage
 =====
 
-Go to the folder with settings file, run the following command:
+Next command creates a configuration file for nginx. Go to the folder with settings file, run it:
 
 .. code-block:: bash
 
     satellite web.nginx.configure
 
-This command creates a configuration file for nginx.
+
+Use auto-completion to navigate the command tree:
+
+.. code-block:: bash
+
+    satellite web.[tab]

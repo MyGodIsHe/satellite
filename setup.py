@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import shutil
 from setuptools import setup, find_packages
 
 
@@ -14,6 +15,8 @@ for dirpath, dirnames, filenames in os.walk(package_name):
             del dirnames[i]
     if filenames and '__init__.py' not in filenames:
         data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
+
+shutil.copyfile('autocomplete', '/etc/bash_completion.d/%s' % package_name)
 
 setup(
     name='Satellite',
