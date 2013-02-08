@@ -1,9 +1,21 @@
 #!/usr/bin/env python
 
+import os
 from setuptools import setup, find_packages
 
 from fabric.version import get_version
 
+
+package_name = 'satellite'
+data_files = []
+
+for dirpath, dirnames, filenames in os.walk(package_name):
+    # Ignore PEP 3147 cache dirs and those whose names start with '.'
+    for i, dirname in enumerate(dirnames):
+        if dirname.startswith('.') or dirname == '__pycache__':
+            del dirnames[i]
+    if filenames and '__init__.py' not in filenames:
+        data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
 setup(
     name='Satellite',
@@ -12,11 +24,12 @@ setup(
     author='Ilya Chistyakov',
     author_email='ilchistyakov@gmail.com',
     packages=find_packages(),
-    install_requires=['Fabric==1.5.3'],
+    data_files=data_files,
+    install_requires=['Fabric==1.5.3', 'configparser'],
     entry_points={
         'console_scripts': [
-            'satellite = satellite.main:main',
-            ]
+            '%(name)s = %(name)s.main:main' % {'name': package_name},
+        ]
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
