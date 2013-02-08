@@ -36,7 +36,7 @@ Example:
     app_port = 8003
 
     [fabric]
-    host_string = 176.9.220.203
+    host_string = ${main:app_name}.com
     user = ${main:app_name}
 
     [satellite]
