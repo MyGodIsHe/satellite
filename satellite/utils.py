@@ -1,6 +1,7 @@
 import os
 
 import configparser
+from fabric.main import load_fabfile, _task_names
 from fabric.operations import run
 from fabric.context_managers import settings as fabric_settings
 from fabric.utils import _AttributeDict, abort
@@ -10,8 +11,35 @@ import satellite
 
 
 __all__ = ['sudo', 'use_sudo', 'get_template', 'get_template_dir',
-           'load_settings', 'settings', 'parser', 'render_jinja2']
+           'load_settings', 'settings', 'parser', 'render_jinja2',
+           'get_dir_list', 'get_task_list', 'check_equal', 'command_exists']
 
+
+def get_dir_list(path):
+    modules = []
+    for name in os.listdir(path):
+        if not os.path.isdir(os.path.join(path, name)):
+            if not name.endswith('.py') or name.startswith('.') or name.startswith('_'):
+                continue
+            name = name[:-3]
+        modules.append(name)
+    return modules
+
+def command_exists(parts):
+    if len(parts) <= 1:
+        return
+    return parts[-1] in get_task_list(parts[:-1])
+
+def get_task_list(parts):
+    fabfile = '%s.py' % os.path.join(satellite.commands.__path__[0], *parts)
+    if not os.path.exists(fabfile):
+        return []
+    docstring, callables, default = load_fabfile(fabfile)
+    callables = dict((k, v) for k, v in callables.iteritems() if v.__module__ == parts[-1])
+    return _task_names(callables)
+
+def check_equal(lst):
+    return not lst or [lst[0]]*len(lst) == lst
 
 # fix for sudo_user
 def sudo(command, *args, **kwargs):
@@ -56,4 +84,6 @@ def load_settings(path='satellite.ini'):
             for name, section in parser.iteritems())
     return {}
 
-settings = _AttributeDict()
+settings = _AttributeDict({
+    'fabric': _AttributeDict(),
+})

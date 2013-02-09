@@ -1,31 +1,8 @@
 import os
-
-from fabric.main import load_fabfile,  _task_names
-
+from satellite import get_dir_list, get_task_list, check_equal
 
 import satellite.commands
 
-
-def get_dir_list(path):
-    modules = []
-    for name in os.listdir(path):
-        if not os.path.isdir(os.path.join(path, name)):
-            if not name.endswith('.py') or name.startswith('.') or name.startswith('_'):
-                continue
-            name = name[:-3]
-        modules.append(name)
-    return modules
-
-def get_task_list(parts):
-    fabfile = '%s.py' % os.path.join(satellite.commands.__path__[0], *parts[:-1])
-    if not os.path.exists(fabfile):
-        return []
-    docstring, callables, default = load_fabfile(fabfile)
-    callables = dict((k, v) for k, v in callables.iteritems() if v.__module__ == parts[-2])
-    return _task_names(callables)
-
-def check_equal(lst):
-    return not lst or [lst[0]]*len(lst) == lst
 
 def run():
     cwords = os.environ['COMP_WORDS'].split()
@@ -44,7 +21,7 @@ def run():
     if os.path.isdir(module_path):
         variants = get_dir_list(module_path)
     else:
-        variants = get_task_list(parts)
+        variants = get_task_list(head)
         is_task = True
 
     variants = [name
@@ -61,9 +38,8 @@ def run():
         except IndexError:
             error = True
         if i != start or error:
-            print ' '.join(SEP.join(head + [i]) for i in variants)
-        else:
-            print ' '.join(variants)
+            variants = (SEP.join(head + [i]) for i in variants)
+        print ' '.join(variants)
     elif ln == 1:
         result = SEP.join(head + variants)
         tail = SEP

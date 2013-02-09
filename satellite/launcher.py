@@ -1,10 +1,11 @@
 import getpass
+from optparse import OptionParser
 import sys
 import os
 
 # For checking callables against the API, & easy mocking
 from fabric import api, state
-from fabric.main import _escape_split, parse_options, find_fabfile, update_output_levels, load_fabfile, show_commands, display_command, parse_arguments, parse_remainder
+from fabric.main import _escape_split, find_fabfile, update_output_levels, load_fabfile, show_commands, display_command, parse_arguments, parse_remainder
 
 from fabric.network import disconnect_all, ssh
 from fabric.state import env_options
@@ -13,7 +14,110 @@ from fabric.task_utils import crawl
 from fabric.utils import abort, indent, warn
 
 import satellite.commands
-from satellite.utils import settings, load_settings
+from satellite.utils import settings, load_settings, get_dir_list, get_task_list, command_exists
+
+
+def parse_options():
+    """
+    Handle command-line options with optparse.OptionParser.
+
+    Return list of arguments, largely for use in `parse_arguments`.
+    """
+    #
+    # Initialize
+    #
+
+    parser = OptionParser(
+        usage=("satellite [options] [<command>"
+               "[:arg1,arg2=val2,host=foo,hosts='h1;h2',...]]"))
+
+    #
+    # Define options that don't become `env` vars (typically ones which cause
+    # Fabric to do something other than its normal execution, such as
+    # --version)
+    #
+
+    # Display info about a specific command
+    parser.add_option('-d', '--display',
+        metavar='NAME',
+        help="print detailed info about command NAME"
+    )
+
+    # Control behavior of --list
+    LIST_FORMAT_OPTIONS = ('short', 'normal', 'nested')
+    parser.add_option('-F', '--list-format',
+        choices=LIST_FORMAT_OPTIONS,
+        default='normal',
+        metavar='FORMAT',
+        help="formats --list, choices: %s" % ", ".join(LIST_FORMAT_OPTIONS)
+    )
+
+    parser.add_option('-I', '--initial-password-prompt',
+        action='store_true',
+        default=False,
+        help="Force password prompt up-front"
+    )
+
+    # List Fab commands found in loaded fabfiles/source files
+    parser.add_option('-l', '--list',
+        action='store_true',
+        dest='list_commands',
+        default=False,
+        help="print list of possible commands and exit"
+    )
+
+    # Allow setting of arbitrary env vars at runtime.
+    parser.add_option('--set',
+        metavar="KEY=VALUE,...",
+        dest='env_settings',
+        default="",
+        help="comma separated KEY=VALUE pairs to set Fab env vars"
+    )
+
+    # Like --list, but text processing friendly
+    parser.add_option('--shortlist',
+        action='store_true',
+        dest='shortlist',
+        default=False,
+        help="alias for -F short --list"
+    )
+
+    # Version number (optparse gives you --version but we have to do it
+    # ourselves to get -V too. sigh)
+    parser.add_option('-V', '--version',
+        action='store_true',
+        dest='show_version',
+        default=False,
+        help="show program's version number and exit"
+    )
+
+    #
+    # Add in options which are also destined to show up as `env` vars.
+    #
+
+    for option in env_options:
+        parser.add_option(option)
+
+    #
+    # Finalize
+    #
+
+    # Return three-tuple of parser + the output from parse_args (opt obj, args)
+    opts, args = parser.parse_args()
+    return parser, opts, args
+
+
+def print_tree_commands(lvl=1, parts=[]):
+    path = os.path.join(satellite.commands.__path__[0], *parts)
+    prefix = ' '*lvl*2
+    if os.path.isdir(path):
+        for i in sorted(get_dir_list(path)):
+            print prefix + i
+            print_tree_commands(lvl+1, parts + [i])
+    else:
+        for i in sorted(get_task_list(parts)):
+            print prefix + i
+        print
 
 
 def run():
@@ -31,8 +135,17 @@ def run():
         if arguments:
             tmp_parts = arguments[0].split(':')
             parts = tmp_parts[0].split('.')
+            if not command_exists(parts):
+                print
+                print 'Warning: command not found!'
+                print
+                return
             fabfile_locations = ['%s.py' % os.path.join(satellite.commands.__path__[0], *parts[:-1])]
             arguments[0] = parts[-1] + ''.join(":%s" % i for i in tmp_parts[1:])
+        else:
+            print "Command tree:"
+            print_tree_commands()
+            return
 
         # Allow setting of arbitrary env keys.
         # This comes *before* the "specific" env_options so that those may
