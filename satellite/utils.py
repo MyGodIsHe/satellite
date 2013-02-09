@@ -76,7 +76,7 @@ def get_template_dir():
 
 parser = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
 
-def load_settings(path='satellite.ini'):
+def load_settings(path):
     if os.path.exists(path):
         parser.read(path)
         return (
@@ -85,5 +85,11 @@ def load_settings(path='satellite.ini'):
     return {}
 
 settings = _AttributeDict({
-    'fabric': _AttributeDict(),
+    'fabric': _AttributeDict(dict(
+        store_true=False,
+        list_commands=False,
+        env_settings="",
+        shortlist=False,
+        show_version=False,
+    )),
 })
