@@ -11,6 +11,17 @@ Requirements
 * `Fabric <http://fabfile.org/>`_
 * `ConfigParser <http://docs.python.org/library/configparser.html>`_
 
+============
+Installation
+============
+
+Use root access to install the autocomplete.
+
+.. code-block:: bash
+
+    sudo pip install git+git://github.com/NElias/satellite.git
+
+
 =============
 Settings file
 =============
