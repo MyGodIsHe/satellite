@@ -1,5 +1,5 @@
 import os
-from satellite import get_dir_list, get_task_list, check_equal
+from satellite import get_dir_list, get_task_list
 
 import satellite.commands
 
@@ -29,15 +29,7 @@ def run():
                 if name.startswith(complete)]
     ln = len(variants)
     if ln > 1:
-        start = len(complete)
-        i = start
-        error = False
-        try:
-            while check_equal([v[i] for v in variants]):
-                i += 1
-        except IndexError:
-            error = True
-        if i != start or error:
+        if len(complete):
             variants = (SEP.join(head + [i]) for i in variants)
         print ' '.join(variants)
     elif ln == 1:
