@@ -1,9 +1,5 @@
 _optcomplete()
 {
- case "$COMP_WORDBREAKS" in
- *.*) : great ;;
- *)   COMP_WORDBREAKS="$COMP_WORDBREAKS."
- esac
  COMPREPLY=( $( \
   COMP_LINE=$COMP_LINE  COMP_POINT=$COMP_POINT \
   COMP_WORDS="${COMP_WORDS[*]}"  COMP_CWORD=$COMP_CWORD \

@@ -24,6 +24,9 @@ def get_task_list(parts):
     callables = dict((k, v) for k, v in callables.iteritems() if v.__module__ == parts[-2])
     return _task_names(callables)
 
+def check_equal(lst):
+    return not lst or [lst[0]]*len(lst) == lst
+
 def run():
     cwords = os.environ['COMP_WORDS'].split()
     cline = os.environ['COMP_LINE']
@@ -31,29 +34,38 @@ def run():
     cword = int(os.environ['COMP_CWORD'])
     SEP = '.'
 
-    full_path = cline[cline.rfind(' ', 0, cpoint)+1:]
-    i = full_path.find(' ')
-    if i != -1:
-        full_path = full_path[:i]
+    full_path = cwords[cword] if len(cwords) > cword else ''
     parts = full_path.split(SEP)
-    module_path = os.path.join(satellite.commands.__path__[0], *parts[:-1])
+    head = parts[:-1]
     complete = parts[-1]
+    module_path = os.path.join(satellite.commands.__path__[0], *head)
 
     is_task = False
     if os.path.isdir(module_path):
-        modules = get_dir_list(module_path)
+        variants = get_dir_list(module_path)
     else:
-        modules = get_task_list(parts)
+        variants = get_task_list(parts)
         is_task = True
 
-    modules = [name
-               for name in modules
-               if name.startswith(complete)]
-    ln = len(modules)
+    variants = [name
+                for name in variants
+                if name.startswith(complete)]
+    ln = len(variants)
     if ln > 1:
-        print ' '.join(modules)
+        start = len(complete)
+        i = start
+        error = False
+        try:
+            while check_equal([v[i] for v in variants]):
+                i += 1
+        except IndexError:
+            error = True
+        if i != start or error:
+            print ' '.join(SEP.join(head + [i]) for i in variants)
+        else:
+            print ' '.join(variants)
     elif ln == 1:
-        result = modules[0]
+        result = SEP.join(head + variants)
         tail = SEP
         if full_path and is_task:
             if full_path == result:

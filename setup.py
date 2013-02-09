@@ -16,7 +16,9 @@ for dirpath, dirnames, filenames in os.walk(package_name):
     if filenames and '__init__.py' not in filenames:
         data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames]])
 
-shutil.copyfile('autocomplete', '/etc/bash_completion.d/%s' % package_name)
+BASH_COMPLETION_DIR = os.environ.get('BASH_COMPLETION_DIR')
+if BASH_COMPLETION_DIR:
+    shutil.copyfile('autocomplete', os.path.join(BASH_COMPLETION_DIR, package_name))
 
 setup(
     name='Satellite',
