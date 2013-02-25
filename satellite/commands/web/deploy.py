@@ -48,6 +48,10 @@ def apply(*args):
 
 def create_environment():
     adduser()
+    # TODO: create ssh access and repo access
+    # ssh-keygen
+    # touch .ssh/authorized_keys
+    # create db, init nginx, supervisor
     dirs = [
         settings.main.root_public,
         settings.main.root_log,

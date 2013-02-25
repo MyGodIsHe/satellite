@@ -1,0 +1,10 @@
+[program:django.uwsgi]
+directory = {{ directory }}
+user = {{ user }}
+command = uwsgi --ini {{ uwsgi }}
+stdout_logfile = {{ log }}/django_fcgi_out.log
+stderr_logfile = {{ log }}/django_fcgi_err.log
+autostart = true
+autorestart = true
+redirect_stderr = true
+environment = HOME='{{ directory }}'

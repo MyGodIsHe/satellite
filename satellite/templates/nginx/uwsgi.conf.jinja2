@@ -1,0 +1,16 @@
+server {
+    listen {{ port }};
+    server_name {{ server_name }};
+
+    root {{ public_dir }};
+    location ~ /({{ static_dirs|join('|') }})/ {
+        root {{ public_dir }};
+    }
+
+    location / {
+        uwsgi_pass {{ uwsgi_pass }};
+        include uwsgi_params;
+    }
+    # what to serve if upstream is not available or crashes
+    error_page 500 502 503 504 {{ error_page }};
+}
