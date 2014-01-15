@@ -11,7 +11,7 @@ def prod_config(path):
 
 
 def collect_static(path):
-    run('ln -Tfs %s %s' % (settings.main.root_public, posixpath.join(path, 'public')))
+    run('ln -Tfs %s %s' % (settings.main.root_public, posixpath.join(path, settings.main.app_public)))
 
     with cd(path):
         with prefix(settings.main.venv_activate):

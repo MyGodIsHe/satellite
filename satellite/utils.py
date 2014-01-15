@@ -10,7 +10,7 @@ import satellite
 
 
 
-__all__ = ['sudo', 'use_sudo', 'get_template', 'get_template_dir',
+__all__ = ['sudo', 'usersudo', 'use_sudo', 'get_template', 'get_template_dir',
            'load_settings', 'settings', 'parser', 'render_jinja2',
            'get_dir_list', 'get_task_list', 'check_equal', 'command_exists']
 
@@ -45,6 +45,10 @@ def check_equal(lst):
 def sudo(command, *args, **kwargs):
     with fabric_settings(user=settings.satellite.sudo_user):
         run("sudo %s" % command, *args, **kwargs)
+
+def usersudo(command, user, *args, **kwargs):
+    with fabric_settings(user=settings.satellite.sudo_user):
+        run("sudo -u %s %s" % (user, command), *args, **kwargs)
 
 def use_sudo(f, *args, **kwargs):
     kwargs["use_sudo"] = True

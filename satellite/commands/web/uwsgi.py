@@ -1,14 +1,20 @@
-from fabric.api import run
+from fabric.contrib.files import upload_template
 from satellite import *
 
 
 def start():
-    run('uwsgi --ini %s' % settings.uwsgi.config)
+    sudo('service uwsgi %s %s' % ('start', settings.fabric.user))
 
 
 def stop():
-    run('uwsgi --stop %s' % settings.uwsgi.pid)
+    sudo('service uwsgi %s %s' % ('stop', settings.fabric.user))
 
 
 def reload():
-    run('touch %s' % settings.uwsgi.touch_reload)
+    sudo('service uwsgi %s %s' % ('reload', settings.fabric.user))
+
+
+def configure():
+    conf = settings.nginx
+    remote_locate = '/etc/uwsgi/apps-enabled/%s.ini' % settings.fabric.user
+    use_sudo(upload_template, 'uwsgi/app.ini.jinja2', remote_locate, conf, template_dir=get_template_dir(), use_jinja=True)

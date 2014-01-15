@@ -23,13 +23,26 @@ def install_repo(dest):
         run('git submodule init')
         run('git submodule update')
 
+
 def update_repo(path):
     with cd(path):
         run('git pull')
         run('git submodule update')
 
+
 def adduser():
     sudo('adduser --disabled-password %s' % settings.fabric.user)
+
+
+def ssh_keygen():
+    usersudo('ssh-keygen', settings.fabric.user)
+
+
+def add_access(key):
+    from fabric.context_managers import settings as fabric_settings
+    with fabric_settings(user=settings.satellite.sudo_user):
+        run('echo "%s" | sudo -u %s tee /home/%s/.ssh/authorized_keys' % (key, settings.fabric.user, settings.fabric.user))
+    usersudo('chmod og-rw /home/%s/.ssh/authorized_keys' % settings.fabric.user)
 
 
 def get_revision(*args):

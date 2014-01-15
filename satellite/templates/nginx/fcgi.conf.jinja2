@@ -22,6 +22,4 @@ server {
         fastcgi_intercept_errors off;
         fastcgi_param REMOTE_ADDR $remote_addr;
     }
-    # what to serve if upstream is not available or crashes
-    error_page 500 502 503 504 {{ error_page }};
 }

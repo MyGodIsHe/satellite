@@ -1,12 +1,12 @@
 from operator import methodcaller
 
-from fabric.api import run
+from fabric.api import run, prompt, local
 from fabric.utils import fastprint
 from fabric.contrib.files import exists
 
 from satellite import *
 from satellite.commands.web.django import prod_config, collect_static, sync_db, migrate_db
-from satellite.commands.web.system import install_repo, update_repo, update_deps, adduser
+from satellite.commands.web.system import install_repo, update_repo, update_deps, adduser, ssh_keygen, add_access
 
 
 def apply(*args):
@@ -45,16 +45,14 @@ def apply(*args):
         migrate_db(abs_path)
 
 
-
 def create_environment():
     adduser()
-    # TODO: create ssh access and repo access
-    # ssh-keygen
-    # touch .ssh/authorized_keys
-    # create db, init nginx, supervisor
+    ssh_keygen()
+    key = local('cat ~/.ssh/id_rsa.pub', capture=True)
+    add_access(key)
     dirs = [
         settings.main.root_public,
-        settings.main.root_log,
         ]
     for dir in dirs:
         run('mkdir %s' % dir)
+    prompt('Done. Now you can create DB.')

@@ -11,6 +11,4 @@ server {
         uwsgi_pass {{ uwsgi_pass }};
         include uwsgi_params;
     }
-    # what to serve if upstream is not available or crashes
-    error_page 500 502 503 504 {{ error_page }};
 }
