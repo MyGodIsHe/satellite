@@ -28,7 +28,7 @@ setup(
     author_email='ilchistyakov@gmail.com',
     packages=find_packages(),
     data_files=data_files,
-    install_requires=['Fabric==1.5.3', 'configparser'],
+    install_requires=['Fabric==1.5.3', 'configparser', 'jinja2'],
     entry_points={
         'console_scripts': [
             '%(name)s = %(name)s.main:main' % {'name': package_name},
