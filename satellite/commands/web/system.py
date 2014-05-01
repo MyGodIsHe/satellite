@@ -42,7 +42,8 @@ def add_access(key):
     from fabric.context_managers import settings as fabric_settings
     with fabric_settings(user=settings.satellite.sudo_user):
         run('echo "%s" | sudo -u %s tee /home/%s/.ssh/authorized_keys' % (key, settings.fabric.user, settings.fabric.user))
-    usersudo('chmod og-rw /home/%s/.ssh/authorized_keys' % settings.fabric.user)
+    #TODO run as user
+    usersudo('chmod og-rw /home/%s/.ssh/authorized_keys' % settings.fabric.user, settings.fabric.user)
 
 
 def get_revision(*args):
